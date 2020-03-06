@@ -119,7 +119,8 @@ async def run(urls,name):
 
 # if __name__ == "__main__":
 def manrun(url,name):
-    create_dir(name)
+    path="f:\\s\\"+name
+    create_dir(path)
     pic_urls = url
     loop = asyncio.get_event_loop()
     for i in range(int(len(pic_urls) / MAX_NUMBER) + 1):
