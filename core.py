@@ -126,6 +126,6 @@ def manrun(url,name):
     for i in range(int(len(pic_urls) / MAX_NUMBER) + 1):
         loop.run_until_complete(
             asyncio.wait(
-                [run(pic_urls[i * MAX_NUMBER:(i + 1) * MAX_NUMBER],name)]
+                [run(pic_urls[i * MAX_NUMBER:(i + 1) * MAX_NUMBER],path)]
             )
         )
