@@ -5,12 +5,13 @@ from bs4 import BeautifulSoup  as bs
 from urllib.request import urlopen
 import requests
 import os, re
-import bs4
 import aiohttp
 import sys,io
 import tqdm
+from core import *
 
-URL="http://www.t66y.com/thread0806.php?fid=16"
+URL="https://cl.330f.tk/thread0806.php?fid=16"
+UHD='https://cl.330f.tk/'
 
 class GetUrl():
     '''获取需要下载的url
@@ -22,7 +23,7 @@ class GetUrl():
 'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0',
 'Accept-Language':'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
 'Connection':'Keep-alive'}
-    proxies = {'http': '192.168.30.110:42326'}
+    #proxies = {'http': '192.168.30.110:42326'}
 
     def __init__(self):
         pass
@@ -38,17 +39,17 @@ class GetUrl():
     def getdata(self):
         try:
             urllist = []
-            html = requests.post(self.__url, headers=self.headers, proxies=self.proxies)
+            # html = requests.post(self.__url, headers=self.headers, proxies=self.proxies)
+            html = requests.post(self.__url, headers=self.headers)
             html.encoding = 'gb18030'
-            bsObj = bs(html.text, 'html.parser')
-            alinks = bsObj.find_all("input", {"data-src": re.compile("[0-9]*\.jpg")})
-
+            bsObj = bs(html.text, 'lxml')
+            alinks = bsObj.find_all("img", {"data-src": re.compile("[0-9]*\.jpg")})
             if len(alinks) == 0:
-                alinks = bsObj.find_all("input", {"data-src": re.compile("[0-9]*\.JPG")})
+                alinks = bsObj.find_all("img", {"data-src": re.compile("[0-9]*\.JPG")})
             name = bsObj.find_all("h4")
             for al in alinks:
                 urllist.append(al["data-src"])
-            return name, urllist
+            return name[0].text, urllist
         except Exception as e:
             print(e)
 
@@ -65,12 +66,13 @@ class GetPage(GetUrl):
         try:
             urllist = []
             #html = requests.post(self.__url,headers=super()._geturl__headers,proxies=super()._geturl__proxies)
-            html = requests.post(super().url, headers=super().headers,proxies=super().proxies)
+            #html = requests.post(super().url, headers=super().headers,proxies=super().proxies)
+            html = requests.post(super().url, headers=super().headers)
             html.encoding='gb18030'
             bsObj = bs(html.text, 'html.parser')
             alinks = bsObj.find_all("a", {"href": re.compile("[0-9]*\.html")}, id='')
             for al in alinks:
-                temp="http://www.t66y.com/" + al["href"]
+                temp=  UHD + al["href"]
                 if temp not in urllist:
                     urllist.append(temp)
         except Exception as e:
@@ -169,8 +171,9 @@ class DownLoad(object):
 
 getpag=GetPage()
 getpag.url=URL
-urllist=getpag.getdata()[8:]
+urllist=getpag.getdata()[10:]
 geturl=GetUrl()
 for ul in urllist:
     geturl.url=ul
-    name, urllist=geturl.getdata()
+    name, ulist=geturl.getdata()
+    manrun(ulist,name)
